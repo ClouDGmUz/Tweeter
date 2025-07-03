@@ -5,13 +5,13 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-lg-8 col-md-10">
+    <div class="col-12 col-sm-11 col-md-10 col-lg-8 col-xl-7">
         <!-- Trending Header -->
-        <div class="d-flex align-items-center mb-4">
-            <i class="fas fa-fire text-warning me-3 fa-2x"></i>
+        <div class="d-flex align-items-center mb-3 mb-sm-4">
+            <i class="fas fa-fire text-warning me-2 me-sm-3 fa-lg fa-sm-2x"></i>
             <div>
-                <h2 class="mb-0">Trending Posts</h2>
-                <p class="text-muted mb-0">Most liked posts from the community</p>
+                <h2 class="mb-0 fs-3 fs-sm-2">Trending Posts</h2>
+                <p class="text-muted mb-0 small">Most liked posts from the community</p>
             </div>
         </div>
 
@@ -22,45 +22,47 @@
                     <div class="card post-card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div class="d-flex align-items-center">
-                                    <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-3" 
-                                         style="width: 40px; height: 40px;">
-                                        <i class="fas fa-user text-white"></i>
+                                <div class="d-flex align-items-center flex-grow-1">
+                                    <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2 me-sm-3 flex-shrink-0" 
+                                         style="width: 35px; height: 35px;">
+                                        <i class="fas fa-user text-white" style="font-size: 0.8rem;"></i>
                                     </div>
-                                    <div>
-                                        <h6 class="post-author mb-0">{{ post.display_author }}</h6>
-                                        <small class="post-time">{{ post.created_at|timesince }} ago</small>
+                                    <div class="min-width-0 flex-grow-1">
+                                        <h6 class="post-author mb-0 text-truncate">{{ post.display_author }}</h6>
+                                        <small class="post-time d-block">{{ post.created_at|timesince }} ago</small>
                                     </div>
                                 </div>
                                 {% if post.like_count > 0 %}
-                                    <span class="trending-badge">
-                                        <i class="fas fa-fire me-1"></i>{{ post.like_count }} like{{ post.like_count|pluralize }}
+                                    <span class="trending-badge flex-shrink-0 ms-2">
+                                        <i class="fas fa-fire me-1"></i><span class="d-none d-sm-inline">{{ post.like_count }} like{{ post.like_count|pluralize }}</span><span class="d-sm-none">{{ post.like_count }}</span>
                                     </span>
                                 {% endif %}
                             </div>
                             <p class="card-text mb-3">{{ post.content }}</p>
                             
                             <!-- Post Actions -->
-                            <div class="post-actions d-flex justify-content-between align-items-center">
-                                <div class="d-flex gap-3">
-                                    <!-- Like Button -->
-                                    <button class="like-btn" 
-                                            data-post-id="{{ post.id }}">
-                                        <i class="far fa-heart me-1"></i>
-                                        <span class="like-count">{{ post.like_count }}</span>
-                                    </button>
+                            <div class="post-actions">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                    <div class="d-flex gap-2 gap-sm-3">
+                                        <!-- Like Button -->
+                                        <button class="like-btn d-flex align-items-center" 
+                                                data-post-id="{{ post.id }}">
+                                            <i class="far fa-heart me-1"></i>
+                                            <span class="like-count">{{ post.like_count }}</span>
+                                        </button>
+                                        
+                                        <!-- Reply Button -->
+                                        <a href="{% url 'post_detail' post.id %}" class="reply-btn text-decoration-none d-flex align-items-center">
+                                            <i class="far fa-comment me-1"></i>
+                                            <span>{{ post.reply_count }}</span>
+                                        </a>
+                                    </div>
                                     
-                                    <!-- Reply Button -->
-                                    <a href="{% url 'post_detail' post.id %}" class="reply-btn text-decoration-none">
-                                        <i class="far fa-comment me-1"></i>
-                                        <span>{{ post.reply_count }}</span>
+                                    <!-- View Post Link -->
+                                    <a href="{% url 'post_detail' post.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye me-1 d-none d-sm-inline"></i><span class="d-none d-sm-inline">View</span><i class="fas fa-eye d-sm-none"></i>
                                     </a>
                                 </div>
-                                
-                                <!-- View Post Link -->
-                                <a href="{% url 'post_detail' post.id %}" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-eye me-1"></i>View
-                                </a>
                             </div>
                         </div>
                     </div>

@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Home - Twitter Clone{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+        <!-- Post Creation Form -->
+        <div class="post-form">
+            <h4 class="mb-3">
+                <i class="fas fa-feather-alt me-2"></i>What's happening?
+            </h4>
+            <form method="post" action="{% url 'create_post' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <input type="text" 
+                           class="form-control" 
+                           name="author_name" 
+                           placeholder="Your name (optional)" 
+                           maxlength="50">
+                </div>
+                <div class="mb-3">
+                    <textarea class="form-control" 
+                              name="content" 
+                              id="post-content"
+                              rows="3" 
+                              placeholder="What's on your mind?" 
+                              maxlength="280" 
+                              required></textarea>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <small class="text-muted">
+                            <span id="char-count" class="character-count">280</span> characters remaining
+                        </small>
+                        <button type="submit" class="btn btn-primary btn-tweet">
+                            <i class="fas fa-paper-plane me-2"></i>Post
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Search Results Info -->
+        {% if search_query %}
+            <div class="search-highlight">
+                <i class="fas fa-search me-2"></i>
+                <strong>Search results for:</strong> "{{ search_query }}"
+                {% if posts %}
+                    <span class="text-muted">({{ posts|length }} result{{ posts|length|pluralize }})</span>
+                {% else %}
+                    <span class="text-muted">(No results found)</span>
+                {% endif %}
+                <a href="{% url 'post_list' %}" class="btn btn-sm btn-outline-warning ms-2">
+                    <i class="fas fa-times me-1"></i>Clear
+                </a>
+            </div>
+        {% endif %}
+
+        <!-- Posts Feed -->
+        <div class="posts-feed">
+            {% if posts %}
+                {% for post in posts %}
+                    <div class="card post-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-3" 
+                                         style="width: 40px; height: 40px;">
+                                        <i class="fas fa-user text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="post-author mb-0">{{ post.display_author }}</h6>
+                                        <small class="post-time">{{ post.created_at|timesince }} ago</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="card-text mb-3">{{ post.content }}</p>
+                            
+                            <!-- Post Actions -->
+                            <div class="post-actions d-flex justify-content-between align-items-center">
+                                <div class="d-flex gap-3">
+                                    <!-- Like Button -->
+                                    <button class="like-btn" 
+                                            data-post-id="{{ post.id }}">
+                                        <i class="far fa-heart me-1"></i>
+                                        <span class="like-count">{{ post.like_count }}</span>
+                                    </button>
+                                    
+                                    <!-- Reply Button -->
+                                    <a href="{% url 'post_detail' post.id %}" class="reply-btn text-decoration-none">
+                                        <i class="far fa-comment me-1"></i>
+                                        <span>{{ post.reply_count }}</span>
+                                    </a>
+                                </div>
+                                
+                                <!-- View Post Link -->
+                                <a href="{% url 'post_detail' post.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye me-1"></i>View
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                    <nav aria-label="Posts pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1">&laquo; First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                                </li>
+                            {% endif %}
+
+                            <li class="page-item active">
+                                <span class="page-link">
+                                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                                </span>
+                            </li>
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">No posts yet</h4>
+                    <p class="text-muted">Be the first to share something!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

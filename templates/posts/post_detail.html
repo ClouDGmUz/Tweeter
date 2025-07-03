@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Post by {{ post.display_author }} - Twitter Clone{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+        <!-- Back Button -->
+        <div class="mb-3">
+            <a href="{% url 'post_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Feed
+            </a>
+        </div>
+
+        <!-- Main Post -->
+        <div class="card post-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-3" 
+                             style="width: 50px; height: 50px;">
+                            <i class="fas fa-user text-white fa-lg"></i>
+                        </div>
+                        <div>
+                            <h5 class="post-author mb-0">{{ post.display_author }}</h5>
+                            <small class="post-time">{{ post.created_at|timesince }} ago</small>
+                        </div>
+                    </div>
+                </div>
+                <p class="card-text mb-3 fs-5">{{ post.content }}</p>
+                
+                <!-- Post Actions -->
+                <div class="post-actions d-flex justify-content-start align-items-center gap-4">
+                    <!-- Like Button -->
+                    <button class="like-btn" 
+                            data-post-id="{{ post.id }}">
+                        <i class="far fa-heart me-1"></i>
+                        <span class="like-count">{{ post.like_count }}</span>
+                        <span class="ms-1">like{{ post.like_count|pluralize }}</span>
+                    </button>
+                    
+                    <!-- Reply Count -->
+                    <span class="text-muted">
+                        <i class="far fa-comment me-1"></i>
+                        {{ post.reply_count }} repl{{ post.reply_count|pluralize:"y,ies" }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reply Form -->
+        <div class="reply-form mt-4">
+            <h5 class="mb-3">
+                <i class="fas fa-reply me-2"></i>Reply to this post
+            </h5>
+            <form method="post" action="{% url 'create_post' %}">
+                {% csrf_token %}
+                <input type="hidden" name="parent_post_id" value="{{ post.id }}">
+                <div class="mb-3">
+                    <input type="text" 
+                           class="form-control" 
+                           name="author_name" 
+                           placeholder="Your name (optional)" 
+                           maxlength="50">
+                </div>
+                <div class="mb-3">
+                    <textarea class="form-control" 
+                              name="content" 
+                              id="reply-content"
+                              rows="3" 
+                              placeholder="Write your reply..." 
+                              maxlength="280" 
+                              required></textarea>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <small class="text-muted">
+                            <span id="reply-char-count" class="character-count">280</span> characters remaining
+                        </small>
+                        <button type="submit" class="btn btn-primary btn-tweet">
+                            <i class="fas fa-reply me-2"></i>Reply
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Replies -->
+        <div class="replies-section mt-4">
+            {% if replies %}
+                <h5 class="mb-3">
+                    <i class="fas fa-comments me-2"></i>Replies ({{ replies.count }})
+                </h5>
+                {% for reply in replies %}
+                    <div class="card post-card ms-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-3" 
+                                         style="width: 35px; height: 35px;">
+                                        <i class="fas fa-user text-white fa-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="post-author mb-0">{{ reply.display_author }}</h6>
+                                        <small class="post-time">{{ reply.created_at|timesince }} ago</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="card-text mb-3">{{ reply.content }}</p>
+                            
+                            <!-- Reply Actions -->
+                            <div class="post-actions d-flex justify-content-start align-items-center gap-3">
+                                <!-- Like Button -->
+                                <button class="like-btn" 
+                                        data-post-id="{{ reply.id }}">
+                                    <i class="far fa-heart me-1"></i>
+                                    <span class="like-count">{{ reply.like_count }}</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-comment-slash fa-2x text-muted mb-3"></i>
+                    <h6 class="text-muted">No replies yet</h6>
+                    <p class="text-muted">Be the first to reply to this post!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Character counter for reply content
+document.addEventListener('DOMContentLoaded', function() {
+    const replyTextarea = document.getElementById('reply-content');
+    const replyCharCount = document.getElementById('reply-char-count');
+    
+    if (replyTextarea && replyCharCount) {
+        replyTextarea.addEventListener('input', function() {
+            const length = this.value.length;
+            const remaining = 280 - length;
+            replyCharCount.textContent = remaining;
+            
+            replyCharCount.className = 'character-count';
+            if (remaining < 20) {
+                replyCharCount.classList.add('danger');
+            } else if (remaining < 50) {
+                replyCharCount.classList.add('warning');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
